@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"regexp"
+	"strings"
 	"unicode/utf8"
 
 	"github.com/jroimartin/gocui"
@@ -183,7 +185,7 @@ func layout(g *gocui.Gui) error {
 			mode = "NORMAL"
 		}
 		_, oy := v.Origin()
-		v.Title = fmt.Sprintf("%s─────────────────────────────────L%d/C%d", mode, cy+oy, cx)
+		v.Title = fmt.Sprintf("%s──────────────────L%d/C%d", mode, cy+oy, cx)
 	}
 	return nil
 }
@@ -249,8 +251,6 @@ func simpleEditor(g *gocui.Gui) func(v *gocui.View, key gocui.Key, ch rune, mod 
 	return func(v *gocui.View, key gocui.Key, ch rune, mod gocui.Modifier) {
 		if v.Name() == "main" {
 			switch {
-			case ch == 'i' && !g.Mouse:
-				g.Mouse = true
 			case ch == ':' && !g.Mouse:
 				switchToCommand(g, v)
 			case (ch == 'j' && !g.Mouse) || key == gocui.KeyArrowDown:
@@ -275,15 +275,58 @@ func simpleEditor(g *gocui.Gui) func(v *gocui.View, key gocui.Key, ch rune, mod 
 				v.EditWrite(' ')
 			case (key == gocui.KeyBackspace || key == gocui.KeyBackspace2) && g.Mouse:
 				v.EditDelete(true)
+			case ch == 'x' && !g.Mouse:
+				v.EditDelete(false)
+			case ch == 'a':
+				moveCursor(g, v, func(x, y int) (int, int) {
+					return x + 1, y
+				})
+				g.Mouse = true
+			case ch == 'A' && !g.Mouse:
+				_, y := v.Cursor()
+				var l string
+				var err error
+				if l, err = v.Line(y); err != nil {
+					l = ""
+				}
+				ln := utf8.RuneCountInString(l)
+				if err := v.SetCursor(ln+1, y); err != nil {
+					panic(err)
+				}
+				g.Mouse = true
+			case ch == 'i' && !g.Mouse:
+				g.Mouse = true
+			case ch == 'I' && !g.Mouse:
+				_, y := v.Cursor()
+				var l string
+				var err error
+				if l, err = v.Line(y); err != nil {
+					l = ""
+				}
+				nonWhitespace := regexp.MustCompile(`[^\s]`)
+				ln := nonWhitespace.FindStringIndex(l)[0]
+				if err := v.SetCursor(ln, y); err != nil {
+					panic(err)
+				}
+				g.Mouse = true
+			case ch == 'G' && !g.Mouse:
+				lns := len(strings.Split(v.Buffer(), "\n"))
+				_, hgt := v.Size()
+
+				if err := v.SetOrigin(0, lns-hgt); err != nil {
+					panic(err)
+				}
 			case key == gocui.KeyBackspace || key == gocui.KeyBackspace2:
 				moveCursor(g, v, func(x, y int) (int, int) {
 					return x - 1, y
 				})
 			case key == gocui.KeyEsc:
-				g.Mouse = false
-				moveCursor(g, v, func(x, y int) (int, int) {
-					return x - 1, y
-				})
+				if g.Mouse {
+					g.Mouse = false
+					moveCursor(g, v, func(x, y int) (int, int) {
+						return x - 1, y
+					})
+				}
 			}
 			iv, err := g.View("info")
 			if err != nil {
@@ -298,10 +341,10 @@ func simpleEditor(g *gocui.Gui) func(v *gocui.View, key gocui.Key, ch rune, mod 
 			var mode string
 			if g.Mouse {
 				mode = "INSERT"
-				iv.Title = fmt.Sprintf("%s─────────────────────────────────L%d/C%d", mode, oy+cy, cx)
+				iv.Title = fmt.Sprintf("%s──────────────────L%d/C%d", mode, oy+cy, cx)
 			} else {
 				mode = "NORMAL"
-				iv.Title = fmt.Sprintf("%s─────────────────────────────────L%d/C%d", mode, oy+cy, cx)
+				iv.Title = fmt.Sprintf("%s──────────────────L%d/C%d", mode, oy+cy, cx)
 			}
 		} else if v.Name() == "info" {
 			switch {

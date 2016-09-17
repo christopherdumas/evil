@@ -8,6 +8,8 @@ high-level language.
 ## Must-have features:
 
 * VIM keybindings (modal too)
+* Ex command bar
+* Persistant undo
 * Split-window
 * Emacs keybindings for window management:
     * <kbd>ctrl</kbd>+<kbd>x</kbd> <kbd>0</kbd>: Kill window
@@ -34,6 +36,8 @@ high-level language.
 
 - [ ] VIM keybindings (modal too)
 - [ ] Split-window
+- [ ] Ex command bar
+- [ ] Persistant undo
 - [ ] Emacs keybindings for window management:
     - [ ] <kbd>ctrl</kbd>+<kbd>x</kbd> <kbd>0</kbd>: Kill window
     - [ ] <kbd>ctrl</kbd>+<kbd>x</kbd> <kbd>3</kbd>: New vertical window
