@@ -1,11 +1,10 @@
-
-                   THE ADVENTURES OF TOM SAWYER
+                            TOM SAWYER
                                 BY
                             MARK TWAIN
                      (Samuel Langhorne Clemens)
 
 
-
+fff
 
                            P R E F A C E
 
@@ -401,3 +400,6 @@ at the window, he uncovered an ambuscade, in the person of his aunt;
 and when she saw the state his clothes were in her resolution to turn
 his Saturday holiday into captivity at hard labor became adamantine in
 its firmness.
+
+irmness.
+
